@@ -2,7 +2,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import plotly.express as px
+import seaborn as sns
 
 df = pd.read_csv("data/data2.csv", encoding='cp949')
 
@@ -28,48 +28,117 @@ col_dict = {'기준년도': 'year', '가입자일련번호': 'id', '시도코드
 col = col_dict[select_variables]
 col_p = col[0].upper() + col[1:]
 
-tab1, tab2, tab3, tab4 = st.tabs(['나이별', '연도별', '성별 및 나이별', '성별 및 연도별'])
+def map_age_group(age):
+    age_group = {
+        1: '0~4', 2: '5~9', 3: '10~14', 4: '15~19', 5: '20~24', 6: '25~29', 7: '30~34',
+        8: '35~39', 9: '40~44', 10: '45~49', 11: '50~54', 12: '55~59', 13: '60~64',
+        14: '65~69', 15: '70~74', 16: '75~79', 17: '80~84', 18: '85~'
+    }
+    age_group = {
+        1: '0~', 2: '5~', 3: '10~', 4: '15~', 5: '20~', 6: '25~', 7: '30~',
+        8: '35~', 9: '40~', 10: '45~', 11: '50~', 12: '55~', 13: '60~',
+        14: '65~', 15: '70~', 16: '75~', 17: '80~', 18: '85~'
+    }
+    return age_group.get(age)
+df['age_group'] = df['age'].apply(map_age_group)
 
-with tab1:
-    grouped = df.groupby(['age'])[col].mean()
-    fig, ax = plt.subplots()
-    grouped.plot(kind='line', marker='o', ax=ax)
-    ax.set_title(f'Average {col_p} by Age')
-    ax.set_xlabel('Age')
-    ax.set_ylabel(f'Average {col_p}')
-    ax.grid(True)
-    st.pyplot(fig)
+tab_age, tab_age_both, tab_age_male, tab_age_female, tab_year, tab_year_both, tab_year_male, tab_year_female = st.tabs(
+    ['나이별', '나이별(남여)', '나이별(남)', '나이별(여)', '연도별', '연도별(남여)', '연도별(남)', '연도별(여)']
+    )
 
-with tab2:
-    grouped = df.groupby(['year'])[col].mean()
-    fig, ax = plt.subplots()
-    grouped.plot(kind='line', marker='o', ax=ax)
-    ax.set_title(f'Average {col_p} by Year')
-    ax.set_xlabel('Year')
-    ax.set_ylabel(f'Average {col_p}')
-    ax.set_xticks(grouped.index)
-    ax.grid(True)
-    st.pyplot(fig)
+with tab_age:
+    df_grouped = df.groupby(['age_group']).agg({col: 'mean'}).reset_index()
+    plt.figure()
+    sns.lineplot(data=df_grouped, x='age_group', y=col, marker='o')
+    plt.title(f'Average {col_p} by Age')
+    plt.xlabel('Age')
+    plt.ylabel(f'Average {col_p}')
+    plt.grid(True)
+    st.pyplot(plt)
+    
+with tab_age_both:
+    df_grouped = df.groupby(['sex', 'age_group']).agg({col: 'mean'}).reset_index()
+    plt.figure()
+    sns.lineplot(data=df_grouped, x='age_group', y=col, hue='sex', marker='o')
+    plt.title(f'Average {col_p} by Age for Each Sex')
+    plt.xlabel('Age')
+    plt.ylabel(f'Average {col_p}')
+    plt.grid(True)
+    st.pyplot(plt)
 
-with tab3:
-    grouped = df.groupby(['sex', 'age'])[col].mean().unstack(0)
-    fig, ax = plt.subplots()
-    grouped.plot(kind='line', marker='o', ax=ax)
-    ax.set_title(f'Average {col_p} by Age for Each Sex')
-    ax.set_xlabel('Age')
-    ax.set_ylabel(f'Average {col_p}')
-    ax.legend(title='Sex', labels=['Male', 'Female'])
-    ax.grid(True)
-    st.pyplot(fig)
+with tab_age_male:
+    df_grouped = df[df.sex == 1].groupby(['age_group']).agg({col: 'mean'}).reset_index()
+    plt.figure()
+    sns.lineplot(data=df_grouped, x='age_group', y=col, marker='o')
+    plt.title(f'Average {col_p} by Age for Male')
+    plt.xlabel('Age')
+    plt.ylabel(f'Average {col_p}')
+    plt.grid(True)
+    st.pyplot(plt)
 
-with tab4:
-    grouped = df.groupby(['sex', 'year'])[col].mean().unstack(0)
-    fig, ax = plt.subplots()
-    grouped.plot(kind='line', marker='o', ax=ax)
-    ax.set_title(f'Average {col_p} by Year for Each Sex')
-    ax.set_xlabel('Year')
-    ax.set_ylabel(f'Average {col_p}')
-    ax.set_xticks(grouped.index)
-    ax.legend(title='Sex', labels=['Male', 'Female'])
-    ax.grid(True)
-    st.pyplot(fig)
+with tab_age_female:
+    df_grouped = df[df.sex == 2].groupby(['age_group']).agg({col: 'mean'}).reset_index()
+    plt.figure()
+    sns.lineplot(data=df_grouped, x='age_group', y=col, marker='o')
+    plt.title(f'Average {col_p} by Age for Female')
+    plt.xlabel('Age')
+    plt.ylabel(f'Average {col_p}')
+    plt.grid(True)
+    st.pyplot(plt)
+
+with tab_year:
+    df_grouped = df.groupby(['year']).agg({col: 'mean'}).reset_index()
+    plt.figure()
+    sns.lineplot(data=df_grouped, x='year', y=col, marker='o')
+    plt.title(f'Average {col_p} by Year')
+    plt.xlabel('Year')
+    plt.ylabel(f'Average {col_p}')
+    plt.xticks(df_grouped['year'].unique())
+    plt.grid(True)
+    st.pyplot(plt)
+
+with tab_year_both:
+    df_grouped = df.groupby(['sex', 'year']).agg({col: 'mean'}).reset_index()
+    plt.figure()
+    sns.lineplot(data=df_grouped, x='year', y=col, hue='sex', marker='o')
+    plt.title(f'Average {col_p} by Year for Each Sex')
+    plt.xlabel('Year')
+    plt.ylabel(f'Average {col_p}')
+    plt.xticks(df_grouped['year'].unique())
+    plt.grid(True)
+    st.pyplot(plt)
+
+with tab_year_male:
+    df_grouped = df[df.sex == 1].groupby(['year']).agg({col: 'mean'}).reset_index()
+    plt.figure()
+    sns.lineplot(data=df_grouped, x='year', y=col, marker='o')
+    plt.title(f'Average {col_p} by Year for Male')
+    plt.xlabel('Year')
+    plt.ylabel(f'Average {col_p}')
+    plt.xticks(df_grouped['year'].unique())
+    plt.grid(True)
+    st.pyplot(plt)
+
+with tab_year_female:
+    df_grouped = df[df.sex == 2].groupby(['year']).agg({col: 'mean'}).reset_index()
+    plt.figure()
+    sns.lineplot(data=df_grouped, x='year', y=col, marker='o')
+    plt.title(f'Average {col_p} by Year for Female')
+    plt.xlabel('Year')
+    plt.ylabel(f'Average {col_p}')
+    plt.xticks(df_grouped['year'].unique())
+    plt.grid(True)
+    st.pyplot(plt)
+
+    # matplotlib ver.
+    # grouped = df.groupby(['
+    # sex', 'year'])[col].mean().unstack(0)
+    # fig, ax = plt.subplots()
+    # grouped.plot(kind='line', marker='o', ax=ax)
+    # ax.set_title(f'Average {col_p} by Year for Each Sex')
+    # ax.set_xlabel('Year')
+    # ax.set_ylabel(f'Average {col_p}')
+    # ax.set_xticks(grouped.index)
+    # ax.legend(title='Sex', labels=['Male', 'Female'])
+    # ax.grid(True)
+    # st.pyplot(fig)
