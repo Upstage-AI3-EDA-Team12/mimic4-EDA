@@ -1,8 +1,7 @@
 #streamlit run app.py
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+import plotly.express as px
 
 df = pd.read_csv("data/data2.csv", encoding='cp949')
 
@@ -40,95 +39,52 @@ def map_age_group(age):
         14: '65~', 15: '70~', 16: '75~', 17: '80~', 18: '85~'
     }
     return age_group.get(age)
+
 df['age_group'] = df['age'].apply(map_age_group)
 
 tab_age, tab_age_both, tab_age_male, tab_age_female, tab_year, tab_year_both, tab_year_male, tab_year_female = st.tabs(
     ['나이별', '나이별(남여)', '나이별(남)', '나이별(여)', '연도별', '연도별(남여)', '연도별(남)', '연도별(여)']
-    )
+)
 
 with tab_age:
     df_grouped = df.groupby(['age_group']).agg({col: 'mean'}).reset_index()
-    plt.figure()
-    sns.lineplot(data=df_grouped, x='age_group', y=col, marker='o')
-    plt.title(f'Average {col_p} by Age')
-    plt.xlabel('Age')
-    plt.ylabel(f'Average {col_p}')
-    plt.grid(True)
-    st.pyplot(plt)
-    
+    fig = px.line(df_grouped, x='age_group', y=col, markers=True, title=f'Average {col_p} by Age')
+    st.plotly_chart(fig)
+
 with tab_age_both:
     df_grouped = df.groupby(['sex', 'age_group']).agg({col: 'mean'}).reset_index()
-    plt.figure()
-    sns.lineplot(data=df_grouped, x='age_group', y=col, hue='sex', marker='o')
-    plt.title(f'Average {col_p} by Age for Each Sex')
-    plt.xlabel('Age')
-    plt.ylabel(f'Average {col_p}')
-    plt.grid(True)
-    st.pyplot(plt)
+    fig = px.line(df_grouped, x='age_group', y=col, color='sex', markers=True, title=f'Average {col_p} by Age for Each Sex')
+    st.plotly_chart(fig)
 
 with tab_age_male:
     df_grouped = df[df.sex == 1].groupby(['age_group']).agg({col: 'mean'}).reset_index()
-    plt.figure()
-    sns.lineplot(data=df_grouped, x='age_group', y=col, marker='o')
-    plt.title(f'Average {col_p} by Age for Male')
-    plt.xlabel('Age')
-    plt.ylabel(f'Average {col_p}')
-    plt.grid(True)
-    st.pyplot(plt)
+    fig = px.line(df_grouped, x='age_group', y=col, markers=True, title=f'Average {col_p} by Age for Male')
+    st.plotly_chart(fig)
 
 with tab_age_female:
     df_grouped = df[df.sex == 2].groupby(['age_group']).agg({col: 'mean'}).reset_index()
-    plt.figure()
-    sns.lineplot(data=df_grouped, x='age_group', y=col, marker='o')
-    plt.title(f'Average {col_p} by Age for Female')
-    plt.xlabel('Age')
-    plt.ylabel(f'Average {col_p}')
-    plt.grid(True)
-    st.pyplot(plt)
+    fig = px.line(df_grouped, x='age_group', y=col, markers=True, title=f'Average {col_p} by Age for Female')
+    st.plotly_chart(fig)
 
 with tab_year:
     df_grouped = df.groupby(['year']).agg({col: 'mean'}).reset_index()
-    plt.figure()
-    sns.lineplot(data=df_grouped, x='year', y=col, marker='o')
-    plt.title(f'Average {col_p} by Year')
-    plt.xlabel('Year')
-    plt.ylabel(f'Average {col_p}')
-    plt.xticks(df_grouped['year'].unique())
-    plt.grid(True)
-    st.pyplot(plt)
+    fig = px.line(df_grouped, x='year', y=col, markers=True, title=f'Average {col_p} by Year')
+    st.plotly_chart(fig)
 
 with tab_year_both:
     df_grouped = df.groupby(['sex', 'year']).agg({col: 'mean'}).reset_index()
-    plt.figure()
-    sns.lineplot(data=df_grouped, x='year', y=col, hue='sex', marker='o')
-    plt.title(f'Average {col_p} by Year for Each Sex')
-    plt.xlabel('Year')
-    plt.ylabel(f'Average {col_p}')
-    plt.xticks(df_grouped['year'].unique())
-    plt.grid(True)
-    st.pyplot(plt)
+    fig = px.line(df_grouped, x='year', y=col, color='sex', markers=True, title=f'Average {col_p} by Year for Each Sex')
+    st.plotly_chart(fig)
 
 with tab_year_male:
     df_grouped = df[df.sex == 1].groupby(['year']).agg({col: 'mean'}).reset_index()
-    plt.figure()
-    sns.lineplot(data=df_grouped, x='year', y=col, marker='o')
-    plt.title(f'Average {col_p} by Year for Male')
-    plt.xlabel('Year')
-    plt.ylabel(f'Average {col_p}')
-    plt.xticks(df_grouped['year'].unique())
-    plt.grid(True)
-    st.pyplot(plt)
+    fig = px.line(df_grouped, x='year', y=col, markers=True, title=f'Average {col_p} by Year for Male')
+    st.plotly_chart(fig)
 
 with tab_year_female:
     df_grouped = df[df.sex == 2].groupby(['year']).agg({col: 'mean'}).reset_index()
-    plt.figure()
-    sns.lineplot(data=df_grouped, x='year', y=col, marker='o')
-    plt.title(f'Average {col_p} by Year for Female')
-    plt.xlabel('Year')
-    plt.ylabel(f'Average {col_p}')
-    plt.xticks(df_grouped['year'].unique())
-    plt.grid(True)
-    st.pyplot(plt)
+    fig = px.line(df_grouped, x='year', y=col, markers=True, title=f'Average {col_p} by Year for Female')
+    st.plotly_chart(fig)
 
     # matplotlib ver.
     # grouped = df.groupby(['
