@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-df = pd.read_csv("data/data2.csv", encoding='cp949')
+df = pd.read_csv("./data/preprocessed_data.csv", encoding='cp949')
 
 st.sidebar.title('Korean Health Analysis')
 st.write("2018년부터 2022년까지의 국민건강보험공단 건강검진정보 데이터를 바탕으로 분석한 결과입니다")
