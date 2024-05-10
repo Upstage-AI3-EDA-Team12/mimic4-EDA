@@ -27,6 +27,14 @@ col_dict = {'기준년도': 'year', '가입자일련번호': 'id', '시도코드
 col = col_dict[select_variables]
 col_p = col[0].upper() + col[1:]
 
+col_info = {'height': '', 'weight': '', 'waist': '', 'sight': '· 정상 시력: 1.0-1.2',
+            'hearing': '', 'SBP': '· 정상: 120 미만', 'DBP': '· 정상: 80 미만', 'FBG': '· 정상: 70-100 mg/dL',
+            'TC': '· 정상: 180 mg/dL 미만', 'LDL': '· 정상 남성: 40 mg/dL 이상  \n· 정상 여성: 50 mg/dL 이상',
+            'NF': '· 정상: 150 mg/dL 미만', 'Hgb': '· 정상 남성: 13.0-17.0 g/dL 이상  \n· 정상 여성: 12.0-16.0 g/dL 이상',
+            'urine protein': '', 'serum creatinine': '· 정상: 0.7-1.4 mg/dL', 'AST': '· 정상 40 이하',
+            'ALT': '· 정상 35 이하', 'GTP': '· 정상 남성: 63 이하  \n· 정상 여성: 35 이하'}
+st.sidebar.write(col_info[col])
+
 def map_age_group(age):
     age_group = {
         1: '0~4', 2: '5~9', 3: '10~14', 4: '15~19', 5: '20~24', 6: '25~29', 7: '30~34',
@@ -52,65 +60,35 @@ df['sex'] = df['sex'].apply(map_sex)
 tab_age, tab_year = st.tabs(['나이별', '연도별'])
 
 with tab_age:
-    #st.subheader('나이별')
     df_grouped = df.groupby(['age_group']).agg({col: 'mean'}).reset_index()
-    #fig = px.line(df_grouped, x='age_group', y=col, markers=True, title=f'Average {col_p} by Age')
     fig = px.line(df_grouped, x='age_group', y=col, markers=True, title='나이별 평균', color_discrete_sequence=['dimgray'])
-    #fig.update_layout(yaxis=dict(showgrid=True, nticks=5))
     st.plotly_chart(fig)
     
-    #st.subheader('나이별 (남여)')
     df_grouped = df.groupby(['sex', 'age_group']).agg({col: 'mean'}).reset_index()
-    #fig = px.line(df_grouped, x='age_group', y=col, color='sex', markers=True, title=f'Average {col_p} by Age for Each Sex')
     fig = px.line(df_grouped, x='age_group', y=col, color='sex', markers=True, title='나이별(남여)', color_discrete_sequence=['palevioletred', 'steelblue'])
     st.plotly_chart(fig)
 
-    #st.subheader('나이별 (남)')
     df_grouped = df[df.sex == 'male'].groupby(['age_group']).agg({col: 'mean'}).reset_index()
-    #fig = px.line(df_grouped, x='age_group', y=col, markers=True, title=f'Average {col_p} by Age for Male')
     fig = px.line(df_grouped, x='age_group', y=col, markers=True, title='나이별(남)', color_discrete_sequence=['steelblue'])
     st.plotly_chart(fig)
 
-    #st.subheader('나이별 (여)')
     df_grouped = df[df.sex == 'female'].groupby(['age_group']).agg({col: 'mean'}).reset_index()
-    #fig = px.line(df_grouped, x='age_group', y=col, markers=True, title=f'Average {col_p} by Age for Female')
     fig = px.line(df_grouped, x='age_group', y=col, markers=True, title='나이별(여)', color_discrete_sequence=['palevioletred'])
     st.plotly_chart(fig)
 
 with tab_year:
-    #st.subheader('연도별')
     df_grouped = df.groupby(['year']).agg({col: 'mean'}).reset_index()
-    #fig = px.line(df_grouped, x='year', y=col, markers=True, title=f'Average {col_p} by Year')
     fig = px.line(df_grouped, x='year', y=col, markers=True, title='연도별 평균', color_discrete_sequence=['dimgray'])
     st.plotly_chart(fig)
 
-    #st.subheader('연도별 (남여)')
     df_grouped = df.groupby(['sex', 'year']).agg({col: 'mean'}).reset_index()
-    #fig = px.line(df_grouped, x='year', y=col, color='sex', markers=True, title=f'Average {col_p} by Year for Each Sex')
     fig = px.line(df_grouped, x='year', y=col, color='sex', markers=True, title='연도별(남여)', color_discrete_sequence=['palevioletred', 'steelblue'])
     st.plotly_chart(fig)
 
-    #st.subheader('연도별 (남)')
     df_grouped = df[df.sex == 'male'].groupby(['year']).agg({col: 'mean'}).reset_index()
-    #fig = px.line(df_grouped, x='year', y=col, markers=True, title=f'Average {col_p} by Year for Male')
     fig = px.line(df_grouped, x='year', y=col, markers=True, title=f'연도별(남)', color_discrete_sequence=['steelblue'])
     st.plotly_chart(fig)
 
-    #st.subheader('연도별 (여)')
     df_grouped = df[df.sex == 'female'].groupby(['year']).agg({col: 'mean'}).reset_index()
-    #fig = px.line(df_grouped, x='year', y=col, markers=True, title=f'Average {col_p} by Year for Female')
     fig = px.line(df_grouped, x='year', y=col, markers=True, title=f'연도별(여)', color_discrete_sequence=['palevioletred'])
     st.plotly_chart(fig)
-
-    # matplotlib ver.
-    # grouped = df.groupby(['
-    # sex', 'year'])[col].mean().unstack(0)
-    # fig, ax = plt.subplots()
-    # grouped.plot(kind='line', marker='o', ax=ax)
-    # ax.set_title(f'Average {col_p} by Year for Each Sex')
-    # ax.set_xlabel('Year')
-    # ax.set_ylabel(f'Average {col_p}')
-    # ax.set_xticks(grouped.index)
-    # ax.legend(title='Sex', labels=['Male', 'Female'])
-    # ax.grid(True)
-    # st.pyplot(fig)
