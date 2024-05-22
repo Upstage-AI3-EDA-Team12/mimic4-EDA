@@ -3,3 +3,4 @@ matplotlib
 seaborn
 streamlit
 plotly
+st-gsheets-connection
