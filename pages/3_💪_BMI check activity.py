@@ -155,12 +155,6 @@ if button:
         ax.grid(True)
         st.pyplot(fig)
 
-        tab1_col1, tab1_col2 = st.columns(2)
-        with tab1_col1:
-            st.write(tmp['height'].describe()) 
-        with tab1_col2:
-            st.write(tmp['weight'].describe())
-
     # 두 번째 탭: BMI 그래프
 
     with tab2:
@@ -175,4 +169,12 @@ if button:
         ax.legend()
         ax.text(target_bmi, len(tmp)/(max(tmp['BMI'])-min(tmp['BMI'])), f'Your BMI: {target_bmi:.2f}', fontsize=10, ha='center', va='top')
         st.pyplot(fig)
-        st.write(tmp['BMI'].describe())
+    
+    with st.expander("요약"):
+        des_col1, des_col2, des_col3 = st.columns(3)
+        with des_col1:
+            st.write(tmp['height'].describe()) 
+        with des_col2:
+            st.write(tmp['weight'].describe())
+        with des_col3:
+            st.write(tmp['BMI'].describe())
